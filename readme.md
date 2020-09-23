@@ -17,11 +17,12 @@ git clone --branch vnext https://github.com/Azure/caf-terraform-landingzones.git
 # Deploy the launchpad light to store the tfstates
 rover -lz /tf/caf/public/landingzones/caf_launchpad -launchpad -var-file /tf/caf/configuration/launchpad.tfvars -a apply
 
-## To deploy HPC some dependencies are required to like networking and some acounting, security and governance services are required.
-rover -lz /tf/caf/public/landingzones/caf_foundations -var-file /tf/caf/configuration/foundations.tfvars -a apply
+# Deploy the caf_foundations
+rover -lz /tf/caf/public/landingzones/caf_foundations -a apply
 
 # Deploy HPC networking
-rover -lz /tf/caf/public/landingzones/caf_networking/ -var-file /tf/caf/configuration/landingzone_networking.tfvars -a apply
+rover -lz /tf/caf/public/landingzones/caf_networking/ -var-file /tf/caf/configuration/networking.tfvars -a apply
+
 
 # Deploy HPC Headnode
 rover -lz /tf/caf/public -var-file /tf/caf/configuration/headnode.tfvars -a apply

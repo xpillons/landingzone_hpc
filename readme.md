@@ -23,23 +23,16 @@ rover -lz /tf/caf/public/landingzones/caf_foundations -a apply
 # Deploy HPC networking
 rover -lz /tf/caf/public/landingzones/caf_networking/ -var-file /tf/caf/configuration/networking.tfvars -a apply
 
+# Deploy the HPC Headnode
+rover -lz /tf/caf -var-file /tf/caf/configuration/headnode.tfvars -a apply
+```
 
-# Deploy HPC Headnode
-rover -lz /tf/caf/public -var-file /tf/caf/configuration/headnode.tfvars -a apply
+### 3 - Destroy
 
+```bash
+rover -lz /tf/caf -var-file /tf/caf/configuration/headnode.tfvars -a destroy -auto-approve
+rover -lz /tf/caf/public/landingzones/caf_networking/ -var-file /tf/caf/configuration/networking.tfvars -a destroy -auto-approve
+rover -lz /tf/caf/public/landingzones/caf_foundations -a destroy -auto-approve
+rover -lz /tf/caf/public/landingzones/caf_launchpad -launchpad -var-file /tf/caf/configuration/launchpad.tfvars -a destroy -auto-approve
 
-# Run HPC landing zone deployment
-
-rover -lz /tf/caf/ \
-      -tfstate ${example}_landingzone_aks.tfstate \
-      -var-file /tf/caf/examples/aks/${example}/configuration.tfvars \
-      -var tags={example=\"${example}\"} \
-      -a apply    
-
-
-rover -lz /tf/caf/apps \
-      -tfstate ${example}_dapr.tfstate \
-      -var-file /tf/caf/examples/apps/dapr/configuration.tfvars \
-      -var tags={example=\"${example}\"} \
-      -a apply     
 ```

@@ -63,15 +63,6 @@ network_security_group_definition = {
   empty_nsg = {
   }
 
-
-  application_gateway = {
-
-  }
-
-  api_management = {
-
-  }
-
   admin = {
     nsg = [
       {

@@ -67,7 +67,7 @@ keyvaults = {
     resource_group_key  = "security"
     region              = "region1"
     sku_name            = "standard"
-    soft_delete_enabled = false
+    soft_delete_enabled = true
 
     tags = {
       tfstate     = "level0"
@@ -101,9 +101,10 @@ azuread_apps = {
     useprefix               = true
     application_name        = "caf_launchpad_level0"
     password_expire_in_days = 180
-    keyvault = {
-      keyvault_key  = "launchpad"
-      secret_prefix = "aadapp-caf-launchpad-level0"
+    keyvaults = {
+      launchpad = {
+        secret_prefix = "aadapp-caf-launchpad-level0"
+      }
     }
   }
 }

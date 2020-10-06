@@ -21,7 +21,6 @@ virtual_machines = {
   headnode = {
     resource_group_key                   = "hpc_rg1"
     region                               = "region1"
-#    boot_diagnostics_storage_account_key = "bootdiag_region1"
     provision_vm_agent                   = true
 
     os_type = "linux"
@@ -38,24 +37,13 @@ virtual_machines = {
             tfstate_key = "networking_hpc"
             output_key  = "vnets"
             lz_key      = "caf_networking"
-          vnet_key    = "hpcvnet"
-          subnet_key = "admin"
+            vnet_key    = "hpcvnet"
+            subnet_key = "admin"
           }
-
         }
         name                    = "0"
         enable_ip_forwarding    = false
         internal_dns_name_label = "nic0"
-
-        # you can setup up to 5 profiles
-        # diagnostic_profiles = {
-        #   operations = {
-        #     definition_key   = "nic"
-        #     destination_type = "log_analytics"
-        #     destination_key  = "central_logs"
-        #   }
-        # }
-
       }
     }
 
@@ -82,16 +70,6 @@ virtual_machines = {
           sku       = "7.7"
           version   = "latest"
         }
-
-        # identity = {
-        #   type = "UserAssigned"
-        #   # remote_state = {
-        #   # }
-        #   managed_identity_keys = [
-        #     "level0", "level1", "level2", "level3", "level4"
-        #   ]
-        # }
-
       }
     }
 
@@ -109,20 +87,9 @@ public_ip_addresses = {
   headnode_pip = {
     name                    = "headnode-pip"
     resource_group_key      = "hpc_rg1"
-    sku                     = "Standard"
+    sku                     = "Basic"
     allocation_method       = "Dynamic"
     ip_version              = "IPv4"
-    #idle_timeout_in_minutes = "4"
-
-    # you can setup up to 5 key
-    # diagnostic_profiles = {
-    #   bastion_host_rg1 = {
-    #     definition_key   = "public_ip_address"
-    #     destination_type = "log_analytics"
-    #     destination_key  = "central_logs"
-    #   }
-    # }
-
   }
 }
 
@@ -133,7 +100,7 @@ keyvaults = {
     resource_group_key  = "hpc_rg1"
     region              = "region1"
     sku_name            = "standard"
-    soft_delete_enabled = false
+    soft_delete_enabled = true
   }
 }
 

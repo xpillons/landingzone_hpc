@@ -1,6 +1,6 @@
 module "caf" {
-  source = "aztfmod/caf-enterprise-scale/azurerm"
-  version = "~>0.2"
+  source = "aztfmod/caf/azurerm"
+  version = "~>0.4"
 
   tfstates                    = local.tfstates
   tags                        = local.tags

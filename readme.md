@@ -10,7 +10,7 @@ rover login -t [TENANT_ID/TENANT_NAME] -s [SUBSCRIPTION_GUID]
 ### 2. Apply Landingzones
 ```bash
 # Add the lower dependency landingzones
-git clone --branch vnext https://github.com/Azure/caf-terraform-landingzones.git /tf/caf/public
+git clone --branch 0.4 https://github.com/Azure/caf-terraform-landingzones.git /tf/caf/public
 
 # Review and update the launchpad region in /tf/caf/configuration/launchpad.tfvars
 

@@ -1,19 +1,3 @@
-level = "level3"
-tfstates = {
-  caf_foundations = {
-    tfstate = "caf_foundations.tfstate"
-  }
-  networking = {
-    tfstate = "caf_networking.tfstate"
-  }
-}
-
-resource_groups = {
-  hpc_rg1 = {
-    name   = "hpc-cluster"
-    region = "region1"
-  }
-}
 
 virtual_machines = {
 
@@ -33,24 +17,21 @@ virtual_machines = {
       nic0 = {
         # Value of the keys from networking.tfvars
         networking = {
-          remote_tfstate = {
-            tfstate_key = "networking_hpc"
-            output_key  = "vnets"
-            lz_key      = "caf_networking"
-            vnet_key    = "hpcvnet"
-            subnet_key = "admin"
-          }
+          vnet_key    = "networking_spoke_hpc"
+          subnet_key = "admin"
+
         }
         name                    = "0"
         enable_ip_forwarding    = false
         internal_dns_name_label = "nic0"
+        public_ip_address_key = "headnode_pip"
       }
     }
 
     virtual_machine_settings = {
       linux = {
         name                            = "headnode"
-        size                            = "Standard_F2"
+        size                            = "Standard_F2S"
         admin_username                  = "hpcadmin"
         disable_password_authentication = true
         #custom_data                     = "scripts/cloud-init-install-rover-tools.config"

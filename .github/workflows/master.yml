@@ -5,15 +5,15 @@
 
 name: master
 
-# on:
-#   push:
-#     branches:
-#       - master
-#     paths-ignore:
-#       - 'documentation/**'
-#       - '_pictures/**'
-#       - 'README.md'
-#       - 'CHANGELOG.md'
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'documentation/**'
+      - '_pictures/**'
+      - 'README.md'
+      - 'CHANGELOG.md'
 #   schedule:
 #     - cron:  '0 3 * * *'
 

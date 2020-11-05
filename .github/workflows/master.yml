@@ -14,11 +14,12 @@ on:
       - '_pictures/**'
       - 'README.md'
       - 'CHANGELOG.md'
-      
+
 #   schedule:
 #     - cron:  '0 3 * * *'
 
 env:
+  CAF_LZ_BRANCH: '2010.0.preview2'
   TF_CLI_ARGS: '-no-color'
   TF_CLI_ARGS_destroy: '-auto-approve -refresh=false'
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
@@ -53,7 +54,7 @@ jobs:
 
       - name: Clone CAF
         run: |
-          git clone --branch 2010.0.preview2 --depth 1 https://github.com/Azure/caf-terraform-landingzones.git ${GITHUB_WORKSPACE}/public
+          git clone --branch ${{ env.CAF_LZ_BRANCH }} --depth 1 https://github.com/Azure/caf-terraform-landingzones.git ${GITHUB_WORKSPACE}/public
 
       - name: caf_launchpad
         run: |
@@ -100,7 +101,10 @@ jobs:
 
           echo "local user: $(whoami)"
 
-
+      - name: Clone CAF
+        run: |
+          git clone --branch ${{ env.CAF_LZ_BRANCH }} --depth 1 https://github.com/Azure/caf-terraform-landingzones.git ${GITHUB_WORKSPACE}/public
+  
       - name: Remove launchpad
         run: |
 

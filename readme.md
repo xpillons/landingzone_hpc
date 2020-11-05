@@ -1,4 +1,5 @@
 # landingzone_hpc preview
+![master](https://github.com/xpillons/landingzone_hpc/workflows/master/badge.svg)
 
 ### 1. Rover login, Environment & example set
 Ensure the below is set prior to apply or destroy.

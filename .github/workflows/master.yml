@@ -58,9 +58,6 @@ jobs:
 
       - name: caf_launchpad
         run: |
-          # ln -s ${GITHUB_WORKSPACE} /tf/caf
-          # ls /tf/caf
-
           id=$(az storage account list --query "[?tags.tfstate=='level0' && tags.environment=='${{ github.run_id }}']" -o json | jq -r .[0].id)
 
           if [ "${id}" == "null" ]; then
@@ -73,8 +70,46 @@ jobs:
             '-var prefix=g${{ github.run_id }}' \
             '-var tags={testing_job_id="${{ github.run_id }}"}' \
             -a apply
-        
           fi
+
+      - name: caf_foundations
+        run: |
+          /tf/rover/rover.sh -lz ${GITHUB_WORKSPACE}/public/landingzones/caf_foundations/ \
+            -var-folder ${GITHUB_WORKSPACE}/configuration/demo/level1 \
+            -parallelism 30 \
+            -level level1 \
+            -env ${{ github.run_id }} \
+            -a apply
+
+      - name: caf_shared_services
+        run: |
+          /tf/rover/rover.sh -lz ${GITHUB_WORKSPACE}/public/landingzones/caf_shared_services/ \
+            -tfstate caf_shared_services.tfstate \
+            -var-folder ${GITHUB_WORKSPACE}/configuration/demo/level2/shared_services \
+            -parallelism 30 \
+            -level level2 \
+            -env ${{ github.run_id }} \
+            -a apply
+          
+      - name: caf_networking_hub
+        run: |
+          /tf/rover/rover.sh -lz ${GITHUB_WORKSPACE}/public/landingzones/caf_networking/ \
+            -tfstate networking_hub.tfstate \
+            -var-folder ${GITHUB_WORKSPACE}/configuration/demo/level2/networking/hub \
+            -parallelism 30 \
+            -level level2 \
+            -env ${{ github.run_id }} \
+            -a apply
+
+      - name: caf_networking_spoke
+        run: |
+          /tf/rover/rover.sh -lz ${GITHUB_WORKSPACE}/public/landingzones/caf_networking/ \
+            -tfstate networking_spoke.tfstate \
+            -var-folder ${GITHUB_WORKSPACE}/configuration/demo/level3/networking/spoke \
+            -parallelism 30 \
+            -level level3 \
+            -env ${{ github.run_id }} \
+            -a apply
 
   foundations_destroy:
     name: foundations_destroy
@@ -104,10 +139,48 @@ jobs:
       - name: Clone CAF
         run: |
           git clone --branch ${{ env.CAF_LZ_BRANCH }} --depth 1 https://github.com/Azure/caf-terraform-landingzones.git ${GITHUB_WORKSPACE}/public
+
+      - name: Remove caf_networking_spoke
+        run: |
+          /tf/rover/rover.sh -lz ${GITHUB_WORKSPACE}/public/landingzones/caf_networking/ \
+            -tfstate networking_spoke.tfstate \
+            -var-folder ${GITHUB_WORKSPACE}/configuration/demo/level3/networking/spoke \
+            -parallelism 30 \
+            -level level3 \
+            -env ${{ github.run_id }} \
+            -a destroy -auto-approve
+
+      - name: Remove caf_networking_hub
+        run: |
+          /tf/rover/rover.sh -lz ${GITHUB_WORKSPACE}/public/landingzones/caf_networking/ \
+          -tfstate networking_hub.tfstate \
+          -var-folder ${GITHUB_WORKSPACE}/configuration/demo/level2/networking/hub \
+          -parallelism 30 \
+          -level level2 \
+          -env ${{ github.run_id }} \
+          -a destroy -auto-approve 
   
+      - name: Remove caf_shared_services
+        run: |
+            /tf/rover/rover.sh -lz ${GITHUB_WORKSPACE}/public/landingzones/caf_shared_services/ \
+              -tfstate caf_shared_services.tfstate \
+              -var-folder ${GITHUB_WORKSPACE}/configuration/demo/level2/shared_services \
+              -parallelism 30 \
+              -level level2 \
+              -env ${{ github.run_id }} \
+              -a destroy -auto-approve
+  
+      - name: Remove caf_foundations
+        run: |
+          /tf/rover/rover.sh -lz ${GITHUB_WORKSPACE}/public/landingzones/caf_foundations/ \
+            -var-folder ${GITHUB_WORKSPACE}/configuration/demo/level1 \
+            -parallelism 30 \
+            -level level1 \
+            -env ${{ github.run_id }} \
+            -a destroy -auto-approve
+   
       - name: Remove launchpad
         run: |
-
           /tf/rover/rover.sh -lz ${GITHUB_WORKSPACE}/public/landingzones/caf_launchpad \
             -var-folder ${GITHUB_WORKSPACE}/configuration/demo/level0 \
             -parallelism 30 \
@@ -118,7 +191,6 @@ jobs:
             '-var tags={testing_job_id="${{ github.run_id }}"}' \
             -a destroy \
             -auto-approve
-
 
       - name: Complete purge
         if: ${{ always() }}

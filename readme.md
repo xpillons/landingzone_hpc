@@ -72,10 +72,43 @@ rover -lz /tf/caf/ -level level3 -var-folder /tf/caf/examples/100-simple-headnod
 ### 3 - Destroy
 
 ```bash
-rover -lz /tf/caf/ -level level3 -var-folder /tf/caf/examples/100-simple-headnode -a destroy -auto-approve
-rover -lz /tf/caf/public/landingzones/caf_shared_services/ -level level2 -a destroy -auto-approve
-rover -lz /tf/caf/public/landingzones/caf_networking/ -level level2 -var-file /tf/caf/public/landingzones/caf_networking/scenario/100-single-region-hub/configuration.tfvars -a destroy -auto-approve
-rover -lz /tf/caf/public/landingzones/caf_foundations -level level1 -a destroy -auto-approve 
-rover -lz /tf/caf/public/landingzones/caf_launchpad/ -level level0 -launchpad -var-folder /tf/caf/public/landingzones/caf_launchpad/scenario/100/ -a destroy -auto-approve
+rover -lz /tf/caf/public/landingzones/caf_networking/ \
+  -tfstate networking_spoke.tfstate \
+  -var-folder /tf/caf/configuration/${environment}/level3/networking/spoke \
+  -parallelism 30 \
+  -level level3 \
+  -env ${environment} \
+  -a destroy -auto-approve
+
+rover -lz /tf/caf/public/landingzones/caf_networking/ \
+  -tfstate networking_hub.tfstate \
+  -var-folder /tf/caf/configuration/${environment}/level2/networking/hub \
+  -parallelism 30 \
+  -level level2 \
+  -env ${environment} \
+  -a destroy -auto-approve
+
+rover -lz /tf/caf/public/landingzones/caf_shared_services/ \
+  -tfstate caf_shared_services.tfstate \
+  -var-folder /tf/caf/configuration/${environment}/level2/shared_services \
+  -parallelism 30 \
+  -level level2 \
+  -env ${environment} \
+  -a destroy -auto-approve
+
+rover -lz /tf/caf/public/landingzones/caf_foundations/ \
+  -var-folder /tf/caf/configuration/${environment}/level1 \
+  -parallelism 30 \
+  -level level1 \
+  -env ${environment} \
+  -a destroy -auto-approve
+
+rover -lz /tf/caf/public/landingzones/caf_launchpad \
+  -var-folder /tf/caf/configuration/${environment}/level0 \
+  -parallelism 30 \
+  -level level0 \
+  -env ${environment} \
+  -launchpad \
+  -a destroy -auto-approve
 
 ```

@@ -1,0 +1,183 @@
+#
+# Copyright (c) Microsoft Corporation
+# Licensed under the MIT License.
+#
+
+name: simple_hpc_pbs
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'configuration/simple_hpc_pbs/**'
+      - '!configuration/simple_hpc_pbs/*.md'
+
+#   schedule:
+#     - cron:  '0 3 * * *'
+
+env:
+  CAF_LZ_BRANCH: '2010.0.preview2'
+  LZ_CONFIGURATION: 'simple_hpc_pbs'
+  TF_CLI_ARGS: '-no-color'
+  TF_CLI_ARGS_destroy: '-auto-approve -refresh=false'
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+jobs:
+  foundations:
+    name: foundations
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: true
+      max-parallel: 1
+      matrix:
+          region: ["westeurope"]
+
+    container:
+      image: aztfmod/rover:2010.2808
+      options: --user 0
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login azure
+        run: |
+          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+
+          echo "local user: $(whoami)"
+
+      - name: Clone CAF
+        run: |
+          git clone --branch ${{ env.CAF_LZ_BRANCH }} --depth 1 https://github.com/Azure/caf-terraform-landingzones.git ${GITHUB_WORKSPACE}/public
+
+      - name: caf_launchpad
+        run: |
+          id=$(az storage account list --query "[?tags.tfstate=='level0' && tags.environment=='${{ github.run_id }}']" -o json | jq -r .[0].id)
+
+          if [ "${id}" == "null" ]; then
+            /tf/rover/rover.sh -lz ${GITHUB_WORKSPACE}/public/landingzones/caf_launchpad \
+            -var-folder ${GITHUB_WORKSPACE}/configuration/${{ env.LZ_CONFIGURATION }}/level0 \
+            -parallelism 30 \
+            -level level0 \
+            -env ${{ github.run_id }} \
+            -launchpad \
+            '-var prefix=g${{ github.run_id }}' \
+            '-var tags={testing_job_id="${{ github.run_id }}"}' \
+            -a apply
+          fi
+
+      - name: caf_foundations
+        run: |
+          /tf/rover/rover.sh -lz ${GITHUB_WORKSPACE}/public/landingzones/caf_foundations/ \
+            -var-folder ${GITHUB_WORKSPACE}/configuration/${{ env.LZ_CONFIGURATION }}/level1 \
+            -parallelism 30 \
+            -level level1 \
+            -env ${{ github.run_id }} \
+            -a apply
+
+      - name: caf_shared_services
+        run: |
+          /tf/rover/rover.sh -lz ${GITHUB_WORKSPACE}/public/landingzones/caf_shared_services/ \
+            -tfstate caf_shared_services.tfstate \
+            -var-folder ${GITHUB_WORKSPACE}/configuration/${{ env.LZ_CONFIGURATION }}/level2/shared_services \
+            -parallelism 30 \
+            -level level2 \
+            -env ${{ github.run_id }} \
+            -a apply
+          
+      - name: hpc_networking
+        run: |
+          /tf/rover/rover.sh -lz ${GITHUB_WORKSPACE}/public/landingzones/caf_networking/ \
+            -tfstate networking.tfstate \
+            -var-folder ${GITHUB_WORKSPACE}/configuration/${{ env.LZ_CONFIGURATION }}/level3/networking \
+            -parallelism 30 \
+            -level level3 \
+            -env ${{ github.run_id }} \
+            -a apply
+
+  foundations_destroy:
+    name: foundations_destroy
+    runs-on: ubuntu-latest
+    if: always()
+    needs: foundations
+
+    strategy:
+      fail-fast: false
+      matrix:
+          region: ["westeurope"]
+
+    container:
+      image: aztfmod/rover:2010.2808
+      options: --user 0
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login azure
+        run: |
+          az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
+          az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
+
+          echo "local user: $(whoami)"
+
+      - name: Clone CAF
+        run: |
+          git clone --branch ${{ env.CAF_LZ_BRANCH }} --depth 1 https://github.com/Azure/caf-terraform-landingzones.git ${GITHUB_WORKSPACE}/public
+
+      - name: Remove hpc_networking
+        run: |
+          /tf/rover/rover.sh -lz ${GITHUB_WORKSPACE}/public/landingzones/caf_networking/ \
+            -tfstate networking.tfstate \
+            -var-folder ${GITHUB_WORKSPACE}/configuration/${{ env.LZ_CONFIGURATION }}/level3/networking/spoke \
+            -parallelism 30 \
+            -level level3 \
+            -env ${{ github.run_id }} \
+            -a destroy -auto-approve
+
+      - name: Remove caf_shared_services
+        run: |
+            /tf/rover/rover.sh -lz ${GITHUB_WORKSPACE}/public/landingzones/caf_shared_services/ \
+              -tfstate caf_shared_services.tfstate \
+              -var-folder ${GITHUB_WORKSPACE}/configuration/${{ env.LZ_CONFIGURATION }}/level2/shared_services \
+              -parallelism 30 \
+              -level level2 \
+              -env ${{ github.run_id }} \
+              -a destroy -auto-approve
+  
+      - name: Remove caf_foundations
+        run: |
+          /tf/rover/rover.sh -lz ${GITHUB_WORKSPACE}/public/landingzones/caf_foundations/ \
+            -var-folder ${GITHUB_WORKSPACE}/configuration/${{ env.LZ_CONFIGURATION }}/level1 \
+            -parallelism 30 \
+            -level level1 \
+            -env ${{ github.run_id }} \
+            -a destroy -auto-approve
+   
+      - name: Remove launchpad
+        run: |
+          /tf/rover/rover.sh -lz ${GITHUB_WORKSPACE}/public/landingzones/caf_launchpad \
+            -var-folder ${GITHUB_WORKSPACE}/configuration/${{ env.LZ_CONFIGURATION }}/level0 \
+            -parallelism 30 \
+            -level level0 \
+            -env ${{ github.run_id }} \
+            -launchpad \
+            '-var prefix=g${{ github.run_id }}' \
+            '-var tags={testing_job_id="${{ github.run_id }}"}' \
+            -a destroy \
+            -auto-approve
+
+      - name: Complete purge
+        if: ${{ always() }}
+        run: |
+          for i in `az monitor diagnostic-settings subscription list -o tsv --query "value[?contains(name, '${{ github.run_id }}' )].name"`; do echo "purging subscription diagnostic-settings: $i" && $(az monitor diagnostic-settings subscription delete --name $i --yes); done
+          for i in `az monitor log-profiles list -o tsv --query '[].name'`; do az monitor log-profiles delete --name $i; done
+          for i in `az ad group list --query "[?contains(displayName, '${{ github.run_id }}')].objectId" -o tsv`; do echo "purging Azure AD group: $i" && $(az ad group delete --verbose --group $i || true); done
+          for i in `az ad app list --query "[?contains(displayName, '${{ github.run_id }}')].appId" -o tsv`; do echo "purging Azure AD app: $i" && $(az ad app delete --verbose --id $i || true); done
+          for i in `az group list --query "[?tags.environment=='${{ github.run_id }}'].name" -o tsv`; do echo "purging resource group: $i" && $(az group delete -n $i -y --no-wait || true); done
+          for i in `az role assignment list --query "[?contains(roleDefinitionName, '${{ github.run_id }}')].roleDefinitionName" -o tsv`; do echo "purging role assignment: $i" && $(az role assignment delete --role $i || true); done
+          for i in `az role definition list --query "[?contains(roleName, '${{ github.run_id }}')].roleName" -o tsv`; do echo "purging custom role definition: $i" && $(az role definition delete --name $i || true); done

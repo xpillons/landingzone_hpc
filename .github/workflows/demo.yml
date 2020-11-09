@@ -3,17 +3,15 @@
 # Licensed under the MIT License.
 #
 
-name: master
+name: demo
 
 on:
   push:
     branches:
       - master
-    paths-ignore:
-      - 'documentation/**'
-      - '_pictures/**'
-      - 'README.md'
-      - 'CHANGELOG.md'
+    paths:
+      - 'configuration/demo/**'
+      - '!configuration/demo/*.md'
 
 #   schedule:
 #     - cron:  '0 3 * * *'

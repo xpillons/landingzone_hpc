@@ -3,7 +3,6 @@ module "landingzone_hpc" {
   #version = "0.4.0-preview1"
   # source  = "/tf/caf/module"
 
-
   tags                     = local.tags
   diagnostics              = local.diagnostics
   global_settings          = local.global_settings

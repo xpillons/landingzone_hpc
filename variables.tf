@@ -12,18 +12,18 @@ variable landingzone {
   default = {
     backend_type = "azurerm"
     current = {
-      level = "level2"
+      level = "level4"
       key   = "landingzone_hpc"
     }
     lower = {
       foundations = {
-        tfstate = "caf_foundations.tfstate"
+        tfstate = "networking_hpc.tfstate"
       }
-      networking = {
-        foundations = {
-          tfstate = "caf_foundations.tfstate"
-        }
-      }
+      # networking = {
+      #   foundations = {
+      #     tfstate = "networking_hpc.tfstate"
+      #   }
+      #}
     }
   }
 }
@@ -37,7 +37,7 @@ variable landingzone_name {
   default = "hpc"
 }
 variable level {
-  default = "level3"
+  default = "level4"
 }
 variable environment {
   default = "sandpit"

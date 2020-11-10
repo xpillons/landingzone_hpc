@@ -1,14 +1,28 @@
-# Cloud Adoption Framework landing zones for Terraform - Starter template
+# Cloud Adoption Framework landing zones for HPC - Simple HPC PBS template
+Example Goal:
+  - Build a single VNET with subnets admin, netapp, storage, viz and compute. No NSG applied on subnets, no diagnostics, no peerings, no private end points
+  - Build a single Linux VM used as a Headnode in the admin subnet, with a public IP and NGS with port 22 open.
+  - Build a VMSS without any public IP, no load balancer in the compute subnet
+  - no backup scenarios, no diagnostics, very simple deployment
+  - try to use a 2 level approach, Level0 for the launchpad, and everything else in Level1. Maybe a 3 level approach could be design in order to separate the networking infrastructure
 
-## DEMO ENVIRONMENT
+This first example is actually implemented from level0 to level3 => how to update it into a 2 or 3 level approach ?
+The level4 directory contains the headnode definition. Here are the questions that need to be addressed :
+  - How to configure the root of this repo so it can contains modules for HPC, like HeadNode, VMSS definitions and more ?
+  - How to organize repos if multiple repos need to be used ?
+  - What is the rover command line to used to deploy the headnode ?
+  - How to provide variables to the headnode ?
+  - How to create a headnode module ?
+  - How to reuse existing networking infrastructure ?
+
+## SIMPLE_HPC_PBS ENVIRONMENT
 
 Assumptions:
 
-- Demo environment does not have pipelines and is meant to be run locally.
 - Demo environment does not have diagnostics enabled.
 - Demo environment does not have RBAC model
 
-## Deploying demo environment
+## Deploying SIMPLE_HPC_PBS environment
 
 After completing the steps from the general [configuration readme](../README.md), you can start using the demo deployment:
 
@@ -60,7 +74,7 @@ rover -lz /tf/caf/public/landingzones/caf_shared_services/ \
 
 ### 4. Level 3 landing zones - Shared infrastructure platforms
 
-#### Deploy the networking spoke
+#### Deploy the networking
 
 ```bash
 rover -lz /tf/caf/public/landingzones/caf_networking/ \
@@ -72,11 +86,18 @@ rover -lz /tf/caf/public/landingzones/caf_networking/ \
   -a [plan|apply|destroy]
 ```
 
-#### Deploy the application platform landing zone
+### 5. Level 4 - Application infrastructure components - Headnode
 
-This is the deployment of application platform landing zone like AKS platform, the configuration files in the repo will show you an example of AKS cluster deployment on top the levels deployed previously.
+```bash
+rover -lz /tf/caf/ \
+  -tfstate lz_hpc.tfstate \
+  -var-folder /tf/caf/configuration/${environment}/level4 \
+  -parallelism 30 \
+  -level level4 \
+  -env ${environment} \
+  -a [plan|apply|destroy]
+```
 
-### 7. Level 4 - Application infrastructure components
-
-You can use level 4 landing zones to describe and deploy an application on top of an environment described in level 3 landing zones (App Service Environment, AKS, etc.).
-Keep on monitoring this repository as we will add examples related to this level.
+```bash
+rover -lz /tf/caf/ -level level4 -var-folder /tf/caf/examples/100-simple-headnode -a apply
+```

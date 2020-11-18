@@ -16,11 +16,11 @@ virtual_machines = {
     networking_interfaces = {
       nic0 = {
         # Value of the keys from networking.tfvars
-        networking = {
+#        networking = {
           vnet_key    = "hpcvnet"
           subnet_key = "admin"
-
-        }
+          lz_key = "networking_hpc"
+#        }
         name                    = "0"
         enable_ip_forwarding    = false
         internal_dns_name_label = "nic0"

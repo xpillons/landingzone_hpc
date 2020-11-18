@@ -5,46 +5,22 @@ variable lower_resource_group_name {}
 
 variable tfstate_storage_account_name {}
 variable tfstate_container_name {}
-variable tfstate_key {}
 variable tfstate_resource_group_name {}
-
-variable landingzone {
-  default = {
-    backend_type = "azurerm"
-    current = {
-      level = "level4"
-      key   = "landingzone_hpc"
-    }
-    lower = {
-      foundations = {
-        tfstate = "networking_hpc.tfstate"
-      }
-      # networking = {
-      #   foundations = {
-      #     tfstate = "networking_hpc.tfstate"
-      #   }
-      #}
-    }
-  }
-}
-
+variable tfstate_key {}
 
 variable global_settings {
   default = {}
 }
 
-variable landingzone_name {
-  default = "hpc"
-}
-variable level {
-  default = "level4"
-}
+variable landingzone {}
+
 variable environment {
   default = "sandpit"
 }
 variable rover_version {
   default = null
 }
+
 variable logged_user_objectId {
   default = null
 }
@@ -55,6 +31,15 @@ variable tags {
   default = null
   type    = map
 }
+variable app_service_environments {
+  default = {}
+}
+variable app_service_plans {
+  default = {}
+}
+variable app_services {
+  default = {}
+}
 variable diagnostics_definition {
   default = null
 }
@@ -63,6 +48,15 @@ variable resource_groups {
 }
 variable network_security_group_definition {
   default = null
+}
+variable vnets {
+  default = {}
+}
+variable azurerm_redis_caches {
+  default = {}
+}
+variable mssql_servers {
+  default = {}
 }
 variable storage_accounts {
   default = {}
@@ -79,6 +73,9 @@ variable keyvault_access_policies {
 variable virtual_machines {
   default = {}
 }
+variable bastion_hosts {
+  default = {}
+}
 variable public_ip_addresses {
   default = {}
 }
@@ -91,12 +88,19 @@ variable managed_identities {
 variable private_dns {
   default = {}
 }
+variable synapse_workspaces {
+  default = {}
+}
+variable azurerm_application_insights {
+  default = {}
+}
 variable role_mapping {
   default = {}
 }
-variable vnet_peerings {
+variable aks_clusters {
   default = {}
 }
-variable vnets {
+variable azure_container_registries {
   default = {}
 }
+variable tenant_id {}

@@ -3,7 +3,7 @@ virtual_machines = {
 
   # Configuration to deploy a headnode host linux virtual machine
   headnode = {
-    resource_group_key                   = "hpc_rg1"
+    resource_group_key                   = "simple_hpc_pbs"
     region                               = "region1"
     provision_vm_agent                   = true
 
@@ -16,11 +16,11 @@ virtual_machines = {
     networking_interfaces = {
       nic0 = {
         # Value of the keys from networking.tfvars
-        networking = {
-          vnet_key    = "networking_spoke_hpc"
+#        networking = {
+          vnet_key    = "hpcvnet"
           subnet_key = "admin"
-
-        }
+          lz_key = "networking_hpc"
+#        }
         name                    = "0"
         enable_ip_forwarding    = false
         internal_dns_name_label = "nic0"
@@ -67,7 +67,7 @@ virtual_machines = {
 public_ip_addresses = {
   headnode_pip = {
     name                    = "headnode-pip"
-    resource_group_key      = "hpc_rg1"
+    resource_group_key      = "simple_hpc_pbs"
     sku                     = "Basic"
     allocation_method       = "Dynamic"
     ip_version              = "IPv4"
@@ -78,7 +78,7 @@ keyvaults = {
   # Do not rename the key "launchpad" to be able to upgrade to the standard launchpad
   secrets = {
     name                = "secrets"
-    resource_group_key  = "hpc_rg1"
+    resource_group_key  = "simple_hpc_pbs"
     region              = "region1"
     sku_name            = "standard"
     soft_delete_enabled = true

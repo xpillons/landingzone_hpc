@@ -23,7 +23,7 @@ rover login --tenant <tenant_name>.onmicrosoft.com -s <subscription_id>
 ```bash
 rover -lz /tf/caf/public/landingzones/caf_launchpad \
 -launchpad \
--var-folder /tf/examples/launchpad \
+-var-folder /tf/caf/examples/launchpad \
 -a apply
 ```
 

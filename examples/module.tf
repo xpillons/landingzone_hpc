@@ -1,8 +1,9 @@
 module "caf" {
-  source = "../"
+  source = "../module/"
 
-  global_settings             = var.global_settings
+  global_settings             = local.global_settings
   current_landingzone_key     = var.landingzone.key
+  tags                        = local.tags
   tenant_id                   = var.tenant_id
   diagnostic_storage_accounts = var.diagnostic_storage_accounts
   logged_user_objectId        = var.logged_user_objectId

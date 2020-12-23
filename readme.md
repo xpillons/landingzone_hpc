@@ -10,5 +10,8 @@ rover login -t [TENANT_ID/TENANT_NAME] -s [SUBSCRIPTION_GUID]
 ### 2. Apply Landingzones sandpit environment
 ```bash
 # Add the lower dependency landingzones
-git clone --branch 2010.0.preview2 --depth 1 https://github.com/Azure/caf-terraform-landingzones.git /tf/caf/public
+git clone --branch 2012.0.0 --depth 1 https://github.com/Azure/caf-terraform-landingzones.git /tf/caf/public
+
+# Add the lower dependency CAF modules
+git clone --depth 1 https://github.com/xpillons/terraform-azurerm-caf.git /tf/caf/aztfmod
 

@@ -1,7 +1,5 @@
 module "caf" {
-  source = "../aztfmod/"
-  # source  = "aztfmod/caf/azurerm" # For using public github version
-  # version = "~> 0.4"
+  source = "../../aztfmod/"
 
   global_settings             = local.global_settings
   current_landingzone_key     = var.landingzone.key
@@ -52,5 +50,8 @@ module "caf" {
     monitoring = var.monitoring
     recovery_vaults = var.recovery_vaults
   }
+  storage = {
+    netapp_accounts = var.netapp_accounts
+  }  
   enable = {}
 }

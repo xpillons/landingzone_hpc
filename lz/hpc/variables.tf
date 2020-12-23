@@ -5,14 +5,34 @@ variable lower_resource_group_name {}
 
 variable tfstate_storage_account_name {}
 variable tfstate_container_name {}
-variable tfstate_resource_group_name {}
 variable tfstate_key {}
+variable tfstate_resource_group_name {}
 
 variable global_settings {
-  default = {}
+  default = {
+    default_region = "region1"
+    regions = {
+      region1 = "westeurope"
+    }
+  }
 }
 
-variable landingzone {}
+variable landingzone {
+  default = {
+    backend_type        = "azurerm"
+    global_settings_key = "launchpad"
+    level               = "level0"
+    key                 = "hpc"
+    tfstates = {
+      launchpad = {
+        level   = "current"
+        tfstate = "caf_launchpad.tfstate"
+      }
+    }
+  }
+}
+
+variable tenant_id {}
 
 variable environment {
   default = "sandpit"
@@ -20,7 +40,6 @@ variable environment {
 variable rover_version {
   default = null
 }
-
 variable logged_user_objectId {
   default = null
 }
@@ -56,6 +75,12 @@ variable azurerm_redis_caches {
   default = {}
 }
 variable mssql_servers {
+  default = {}
+}
+variable mssql_databases {
+  default = {}
+}
+variable mssql_elastic_pools {
   default = {}
 }
 variable storage_accounts {
@@ -100,7 +125,39 @@ variable role_mapping {
 variable aks_clusters {
   default = {}
 }
-variable azure_container_registries {
+variable databricks_workspaces {
   default = {}
 }
-variable tenant_id {}
+variable machine_learning_workspaces {
+  default = {}
+}
+variable monitoring {
+  default = {}
+}
+variable virtual_wans {
+  default = {}
+}
+variable event_hub_namespaces {
+  default = {}
+}
+variable application_gateways {
+  default = {}
+}
+variable application_gateway_applications {
+  default = {}
+}
+variable log_analytics {
+  default = {}
+}
+variable recovery_vaults {
+  default = {}
+}
+variable storage {
+  default = {}
+}
+variable netapp_accounts {
+  default = {}
+}
+variable dynamic_keyvault_secrets {
+  default = {}
+}
